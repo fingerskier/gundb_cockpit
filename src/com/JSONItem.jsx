@@ -1,179 +1,121 @@
-import {useEffect, useState} from 'react'
+import { useEffect, useMemo } from 'react';
 
 const TYPE = {
   ARRAY: 'array',
   OBJECT: 'object',
   NUMBER: 'number',
   STRING: 'string',
-  BOOLEAN: 'boolean',
-  GENERIC: 'generic',
 }
 
 
-export default function GenericItem({data, setData}) {
-  const [type, setType] = useState()
+export default function GenericItem({ data, setData }) {
+  const type = useMemo(() => {
+    if (Array.isArray(data)) return TYPE.ARRAY;
+    if (typeof data === 'object' && data !== null) return TYPE.OBJECT;
+    if (typeof data === 'number') return TYPE.NUMBER;
+    if (typeof data === 'string') return TYPE.STRING;
+    return null;
+  }, [data]);
   
+  const ItemComponent = {
+    [TYPE.ARRAY]: ArrayItem,
+    [TYPE.OBJECT]: ObjectItem,
+    [TYPE.NUMBER]: NumericItem,
+    [TYPE.STRING]: StringItem,
+  }[type];
   
-  useEffect(() => {
-    if (data) {
-      if (Array.isArray(data)) {
-        setType(TYPE.ARRAY)
-      } else if (typeof data === TYPE.OBJECT) {
-        setType(TYPE.OBJECT)
-      } else if (typeof data === TYPE.NUMBER) {
-        setType(TYPE.NUMBER)
-      } else if (typeof data === TYPE.STRING) {
-        setType(TYPE.STRING)
-      }
-    }
-  }, [data])
-  
-  
-  return <>
-    {(type === TYPE.ARRAY)?
-      <ArrayItem data={data} setData={setData} />
-    : (type === TYPE.OBJECT)?
-      <ObjectItem data={data} setData={setData} />
-    : (type === TYPE.NUMBER)?
-      <NumericItem data={data} setData={setData} />
-    : (type === TYPE.STRING)?
-      <StringItem data={data} setData={setData} />
-    : null
-    }
-  </>
+  return ItemComponent ? <ItemComponent data={data} setData={setData} /> : null;
 }
 
 
-function ArrayItem({data, setData}) {
-  return <>
-    [
+function ArrayItem({ data, setData }) {
+  const handleAdd = (type) => {
+    const defaults = {
+      [TYPE.ARRAY]: [],
+      [TYPE.OBJECT]: {},
+      [TYPE.NUMBER]: 1,
+      [TYPE.STRING]: '',
+    };
+    setData([...data, defaults[type]]);
+  }
+  
+  return (
     <ul>
-      {data?.map((item, index) => 
+      {data?.map((item, index) => (
         <li key={index}>
           <GenericItem
             data={item}
-            setData={value => {
-              const copy = [...data]
-              copy[index] = value
-              setData(copy)
+            setData={(value) => {
+              const copy = [...data];
+              copy[index] = value;
+              setData(copy);
             }}
           />
         </li>
-      )}
-      
+      ))}
       <li>
-        <select
-          onChange={e => {
-            const value = e.target.value
-            if (!value) return
-            
-            const defVal = (value === TYPE.ARRAY) ? [] 
-              : (value === TYPE.OBJECT) ? {} 
-              : (value === TYPE.STRING)? 'STRING'
-              : (value === TYPE.NUMBER)? 1
-              : value
-            
-            setData([...data, defVal])
-            
-            e.target.value = ''
-          }}
-        >
+        <select onChange={(e) => e.target.value && handleAdd(e.target.value)} defaultValue="">
           <option value="">Add an Item</option>
-          <option>{TYPE.ARRAY}</option>
-          <option>{TYPE.OBJECT}</option>
-          <option>{TYPE.NUMBER}</option>
-          <option>{TYPE.STRING}</option>
+          {Object.values(TYPE).map((t) => (
+            <option key={t}>{t}</option>
+          ))}
         </select>
       </li>
     </ul>
-    ]
-  </>
+  );
 }
 
-
-function NumericItem({data, setData}) {
-  return <>
-    <input 
-      type="number"
-      value={data}
-      onChange={e => setData(Number(e.target.value))}
-    />
-  </>
+function NumericItem({ data, setData }) {
+  return <input type="number" value={data} onChange={(e) => setData(Number(e.target.value))} />;
 }
 
+function ObjectItem({ data, setData }) {
+  const handleRenameKey = (oldKey, newKey) => {
+    if (oldKey === newKey || data[newKey] !== undefined) return;
+    const copy = { ...data, [newKey]: data[oldKey] };
+    delete copy[oldKey];
+    setData(copy);
+  };
 
-function ObjectItem({data, setData}) {
-  function ObjectKey({name, setName}) {
-    const [value, setValue] = useState(name)
-    
-    return <input
-      type="text"
-      value={value}
-      onChange={e => setValue(e.target.value)}
-      onBlur={e => setName(value)}
-    />
-  }
-  
-  
-  return <>
-    {'{'}
+  const handleAdd = (type) => {
+    const defaults = {
+      [TYPE.ARRAY]: [],
+      [TYPE.OBJECT]: {},
+      [TYPE.NUMBER]: 1,
+      [TYPE.STRING]: '',
+    };
+    const key = type + Object.keys(data).length;
+    setData({ ...data, [key]: defaults[type] });
+  };
+
+  return (
     <ul>
-      {Object.keys(data).map(key => 
+      {Object.entries(data).map(([key, value]) => (
         <li key={key}>
-          <label>
-            <ObjectKey name={key} setName={newKey => {
-              const copy = {...data}
-              copy[newKey] = copy[key]
-              setData(copy)
-              delete copy[key]
-            }} />
-            
-            :&nbsp;
-            
-            <GenericItem
-              data={data[key]}
-              setData={value => setData({...data, [key]: value})}
-              />
-          </label>
+          <input
+            type="text"
+            value={key}
+            onChange={(e) => handleRenameKey(key, e.target.value)}
+          />
+          :
+          <GenericItem
+            data={value}
+            setData={(val) => setData({ ...data, [key]: val })}
+          />
         </li>
-      )}
-      
+      ))}
       <li>
-        <select
-          onChange={e => {
-            const key = e.target.value
-            if (!key) return
-            
-            const defVal = key === TYPE.ARRAY ? [] :
-              key === TYPE.OBJECT ? {} :
-              key === TYPE.NUMBER ? 1 :
-              key === TYPE.STRING ? 'string'
-              : null
-            
-            setData({...data, [key]: defVal})
-            
-            e.target.value = ''
-          }}
-          >
+        <select onChange={(e) => e.target.value && handleAdd(e.target.value)} defaultValue="">
           <option value="">Add an Item</option>
-          <option>{TYPE.ARRAY}</option>
-          <option>{TYPE.OBJECT}</option>
-          <option>{TYPE.NUMBER}</option>
-          <option>{TYPE.STRING}</option>
+          {Object.values(TYPE).map((t) => (
+            <option key={t}>{t}</option>
+          ))}
         </select>
       </li>
     </ul>
-    {'}'}
-  </>
+  );
 }
 
-
-function StringItem({data, setData}) {
-  return <>
-    <input
-      type="text"
-      value={data}
-      onChange={e => setData(e.target.value)}
-    />
-  </>
+function StringItem({ data, setData }) {
+  return <input type="text" value={data} onChange={(e) => setData(e.target.value)} />;
 }

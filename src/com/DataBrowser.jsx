@@ -1,33 +1,48 @@
 import React, { useEffect, useState } from 'react'
 import { useGun } from 'api/GunContext'
 
-
-export default function DataBrowser() {
+export default function DataBrowser({setSelection}) {
   const gun = useGun()
   const [data, setData] = useState({})
 
   useEffect(() => {
-    if (!gun) return;
+    if (!gun) return
     
-    // Subscribe to changes under the "myData" node
-    const nodeRef = gun.get('myData');
-    
-    // The .on listener will be called whenever data changes
+    const nodeRef = gun.get('myData')
     nodeRef.on((nodeData) => {
-      // Gun sometimes includes metadata fields (_/etc). We can filter them out if we want.
-      setData(nodeData);
-    });
+      setData(nodeData)
+    })
 
-    // Cleanup subscription if the component unmounts
     return () => {
-      nodeRef.off();
-    };
-  }, [gun]);
+      nodeRef.off()
+    }
+  }, [gun])
+
+  const handleSelect = (key, value) => {
+    const path = value && typeof value === 'object' && '#' in value
+      ? value['#']
+      : `myData/${key}`
+    
+    setSelection(path)
+  }
+
+  const renderData = () => {
+    const items = Object.entries(data).filter(([key]) => key !== '_')
+    return items.map(([key, value]) => (
+      <div 
+        key={key}
+        onClick={() => handleSelect(key, value)}
+        style={{ cursor: 'pointer', padding: '4px' }}
+      >
+        {key}: {typeof value === 'object' ? '{ ... }' : JSON.stringify(value)}
+      </div>
+    ))
+  }
 
   return (
     <div>
       <h3>Data Browser</h3>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
+      <div>{renderData()}</div>
     </div>
-  );
+  )
 }

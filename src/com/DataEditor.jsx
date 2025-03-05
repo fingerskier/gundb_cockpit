@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useGun } from 'api/GunContext'
 import JSONItem from './JSONItem'
 
 
-export default function DataEditor() {
+export default function DataEditor({data, path}) {
   const gun = useGun();
   const [keyName, setKeyName] = useState('');
   const [value, setValue] = useState({});
@@ -17,15 +17,23 @@ export default function DataEditor() {
     
     // Clear out the fields
     setKeyName('');
-    setValue('');
+    setValue('')
   }
+  
+  
+  useEffect(() => {
+    const newValue = data
+    delete newValue['#']
+    delete newValue['_']
+    setValue(newValue)
+  }, [data])
   
   
   return (
     <div>
       <h3>Data Editor</h3>
       <form onSubmit={handleSave}>
-        <div>
+        {path? <>Key: {path}</>: <div>
           <label htmlFor="keyName">Key:</label>
           <input
             id="keyName"
@@ -33,7 +41,8 @@ export default function DataEditor() {
             value={keyName}
             onChange={(e) => setKeyName(e.target.value)}
           />
-        </div>
+        </div>}
+        
         <div>
           <label htmlFor="value">Value:</label>
           <JSONItem
@@ -45,6 +54,8 @@ export default function DataEditor() {
         </div>
         <button disabled={!keyName || !value} type="submit">Save to Gun</button>
       </form>
+      
+      <pre>{JSON.stringify(value, null, 2)}</pre>
     </div>
   );
 }
