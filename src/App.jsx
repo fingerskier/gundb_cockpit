@@ -1,38 +1,35 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './App.css'
-import DataBrowser from './com/DataBrowser'
-import DataEditor from './com/DataEditor'
-import { useGun } from 'api/GunContext'
+import DataElement from './com/DataElement'
+import Help from './com/Help'
 
 
 export default function App() {
-  const [dataPath, setDataPath] = useState(null)
-  const [selectedData, setSelectedData] = useState(null)
-  const gun = useGun()
+  const inputRef = useRef(null)
   
-  
-  useEffect(() => {
-    if (!gun || !dataPath) {
-      setSelectedData(null)
-      return
-    }
-    const selectedRef = gun.get(dataPath)
-    selectedRef.on((data) => {
-      setSelectedData(data)
-    })
-    
-    console.log(dataPath, selectedData)
-    
-    return () => {
-      selectedRef.off()
-    }
-  }, [gun, dataPath])
+  const [rootPath, setRootPath] = useState(null)
+  const [showHelp, setShowHelp] = useState(false)
   
   
   return <>
     <h1>GunDB Cockpit</h1>
-    <DataBrowser setSelection={setDataPath} />
-    <pre>{JSON.stringify(dataPath, null, 2)}</pre>
-    <DataEditor data={selectedData} path={dataPath} />
+    
+    <input
+      placeholder="Root Path"
+      ref={inputRef}
+      type="text"
+    />
+    
+    <button onClick={() => setRootPath(inputRef.current.value)}>Set Root Path</button>
+    
+    <DataElement path={rootPath} />
+
+    <button id="help-button"
+      onClick={() => setShowHelp(!showHelp)}
+    >
+      {showHelp ? 'X' : '?'}
+    </button>
+
+    {showHelp && <Help />}
   </>
 }
