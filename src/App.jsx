@@ -14,7 +14,7 @@ export default function App() {
   return <>
     <h1>GunDB Cockpit</h1>
     
-    <input
+    <input autoFocus
       placeholder="Root Path"
       ref={inputRef}
       type="text"

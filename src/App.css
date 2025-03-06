@@ -1,5 +1,6 @@
 * {
   box-sizing: border-box;
+  font-family: 'Roboto', sans-serif;
   margin: 0;
   padding: 0;
 }
@@ -31,8 +32,9 @@ body {
 
 
 input {
+  font-family: 'Courier New', Courier, monospace;
   font-size: 1.2rem;
-  margin: 0.3rem 0.5rem;
+  margin: 0.1rem 0.2rem;
   border: none;
   border-radius: 0.5rem;
   background-color: #333;
@@ -40,8 +42,39 @@ input {
   text-align: center;
 }
 
+select {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.2rem;
+  margin: 0.1rem 0.2rem;
+  border: none;
+  border-radius: 0.5rem;
+  background-color: #333;
+  color: #fff;
+}
+
+button {
+  font-size: 1.2rem;
+  padding: 0.1rem 0.2rem;
+  border: none;
+  border-radius: 0.5rem;
+  background-color: #aaa;
+  color: #000;
+}
+
+button:hover {
+  background-color: #ccc;
+}
+
+button:active {
+  background-color: #ddd;
+}
+
 
 #help-button {
+  width: 2.6rem;
+  height: 2.6rem;
+  text-align: center;
+  vertical-align: middle;
   position: fixed;
   bottom: 0;
   left: 50vw;
