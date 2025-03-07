@@ -12,7 +12,8 @@ export const GunProvider = ({ children }) => {
       peers: [],
     })
   }, [])
-
+  
+  
   return (
     <GunContext.Provider value={gun}>
       {children}

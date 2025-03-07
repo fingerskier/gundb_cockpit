@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import gun from '../db'
+import { useGun } from '../api/gunContext'
 
 import style from './DataElement.module.css'
 
@@ -11,6 +11,8 @@ const icon = {
 
 
 export default function DataElement({ node, path, depth = 0 }) {
+  const gun = useGun()
+  
   const nodeRef = useRef(node || gun.get(path))
   
   const [data, setData] = useState(null)

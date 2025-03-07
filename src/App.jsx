@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import './App.css'
 import DataElement from './com/DataElement'
 import Help from './com/Help'
+import { GunProvider } from './api/gunContext'
 
 
 export default function App() {
@@ -22,7 +23,9 @@ export default function App() {
     
     <button onClick={() => setRootPath(inputRef.current.value)}>Set Root Path</button>
     
-    <DataElement path={rootPath} />
+    <GunProvider>
+      <DataElement path={rootPath} />
+    </GunProvider>
 
     <button id="help-button"
       onClick={() => setShowHelp(!showHelp)}
