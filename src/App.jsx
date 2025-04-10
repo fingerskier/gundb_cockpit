@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import './App.css'
-import DataElement from './com/DataElement'
+import DataElement from './com/GunElement'
 import Help from './com/Help'
-import { GunProvider } from './api/gunContext'
+import { GunProvider, useGun } from './api/gunContext'
 
 
 export default function App() {
-  const inputRef = useRef(null)
+  const gun = useGun()
   
-  const [rootPath, setRootPath] = useState(null)
+  const [rootPath, setRootPath] = useState('data')
   const [showHelp, setShowHelp] = useState(false)
   
   
@@ -17,14 +17,14 @@ export default function App() {
     
     <input autoFocus
       placeholder="Root Path"
-      ref={inputRef}
+      onChange={(e) => setRootPath(e.target.value)}
       type="text"
+      value={rootPath}
     />
     
-    <button onClick={() => setRootPath(inputRef.current.value)}>Set Root Path</button>
     
     <GunProvider>
-      <DataElement path={rootPath} />
+      <DataElement node={gun.get(rootPath)} name={rootPath} />
     </GunProvider>
 
     <button id="help-button"

@@ -2,15 +2,16 @@ import React, { createContext, useContext, useMemo } from 'react'
 import Gun from 'gun'
 
 
+
 const GunContext = createContext(null)
 
 
-export const GunProvider = ({ children }) => {
-  // Initialize Gun once
+export const GunProvider = ({ children, peers=[] }) => {
   const gun = useMemo(() => {
-    return Gun({
-      peers: [],
+    window.gun = Gun({
+      peers: peers,
     })
+    return window.gun
   }, [])
   
   
