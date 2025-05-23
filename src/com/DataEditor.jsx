@@ -1,22 +1,24 @@
 import React, { useEffect, useState } from 'react'
 import { useGun } from 'api/GunContext'
+import { getNode } from 'api/gunHelpers'
 import JSONItem from './JSONItem'
 
 
-export default function DataEditor({data, path}) {
-  const gun = useGun();
-  const [keyName, setKeyName] = useState('');
-  const [value, setValue] = useState({});
+export default function DataEditor({ data, path, basePath = 'data' }) {
+  const gun = useGun()
+  const [keyName, setKeyName] = useState('')
+  const [value, setValue] = useState({})
   
   const handleSave = (e) => {
-    e.preventDefault();
-    if (!keyName || !value) return;
-    
-    // Put merges the data into the node
-    gun.get('myData').put({ [keyName]: value });
-    
-    // Clear out the fields
-    setKeyName('');
+    e.preventDefault()
+    const target = path ? getNode(gun, path) : getNode(gun, basePath)
+    if (path) {
+      target.put(value)
+    } else {
+      if (!keyName || value === undefined) return
+      target.put({ [keyName]: value })
+      setKeyName('')
+    }
     setValue('')
   }
   
@@ -52,7 +54,7 @@ export default function DataEditor({data, path}) {
             setData={newValue => setValue(newValue)}
           />
         </div>
-        <button disabled={!keyName || !value} type="submit">Save to Gun</button>
+        <button disabled={!path && (!keyName || !value)} type="submit">Save to Gun</button>
       </form>
       
       <pre>{JSON.stringify(value, null, 2)}</pre>
