@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { useGun } from 'api/GunContext'
+import { getNode } from 'api/gunHelpers'
 
-export default function DataBrowser({setSelection}) {
+export default function DataBrowser({ setSelection, path = 'data' }) {
   const gun = useGun()
   const [data, setData] = useState({})
 
   useEffect(() => {
     if (!gun) return
     
-    const nodeRef = gun.get('myData')
+    const nodeRef = getNode(gun, path)
     nodeRef.on((nodeData) => {
       setData(nodeData)
     })
@@ -16,14 +17,15 @@ export default function DataBrowser({setSelection}) {
     return () => {
       nodeRef.off()
     }
-  }, [gun])
+  }, [gun, path])
 
   const handleSelect = (key, value) => {
-    const path = value && typeof value === 'object' && '#' in value
-      ? value['#']
-      : `myData/${key}`
-    
-    setSelection(path)
+    const nextPath =
+      value && typeof value === 'object' && '#' in value
+        ? value['#']
+        : `${path}/${key}`
+
+    setSelection(nextPath)
   }
 
   const renderData = () => {

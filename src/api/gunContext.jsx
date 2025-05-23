@@ -6,13 +6,12 @@ import Gun from 'gun'
 const GunContext = createContext(null)
 
 
-export const GunProvider = ({ children, peers=[] }) => {
+export const GunProvider = ({ children, peers = [] }) => {
   const gun = useMemo(() => {
-    window.gun = Gun({
-      peers: peers,
-    })
+    const options = peers.length ? { peers } : {}
+    window.gun = Gun(options)
     return window.gun
-  }, [])
+  }, [peers])
   
   
   return (
