@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { useGun } from 'api/GunContext'
+import { useGun } from 'api/gunContext'
 import { getNode } from 'api/gunHelpers'
 import JSONItem from './JSONItem'
 
